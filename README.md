@@ -12,5 +12,3 @@
 ```bash
 node bin/plants.js __fixtures__/flora.csv
 ```
-
-Тесты на работают, прошу понять) Потом допилю, наверное
