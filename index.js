@@ -2,50 +2,47 @@ import _ from 'lodash';
 
 const makeDataArray = (content) => {
   const strings = content.split('\n').slice(2);
-  const array = strings.map((string) =>
-    string
-      .split('|')
-      .filter((el) => el !== '')
-      .map((el) => el.trim()),
-  );
+  // prettier-ignore
+  const array = strings.map((string) => string
+    .split('|')
+    .filter((el) => el !== '')
+    .map((el) => el.trim()));
   return _.sortBy(array.map(([herb, ...rest]) => [_.capitalize(herb), ...rest]));
 };
 
 const getDangerousPercents = (dataArray) => {
   const herbsCount = dataArray.length;
-  const dangerous = dataArray.reduce((acc, herbString) => {
-    return herbString[herbString.length - 1] === 'Да' ? acc + 1 : acc;
-  }, 0);
+  const dangerous = dataArray.reduce((acc, herbString) => (herbString[herbString.length - 1] === 'Да' ? acc + 1 : acc), 0);
   const notDangerous = herbsCount - dangerous;
   return [`${(dangerous / herbsCount) * 100}%`, `${(notDangerous / herbsCount) * 100}%`];
 };
 
 const getAverageLife = (dataArray) => {
-  const lifesValues = dataArray.map((herbString) => herbString[3].slice(0, -4).split('-'));
-  const lifesValuesFilled = lifesValues.map(([from, to]) => {
-    if (!to) return [from, from];
-    return [from, to];
-  });
-
-  const herbsCount = dataArray.length;
-  const fullLife = lifesValuesFilled.reduce(
-    (acc, [from, to]) => {
-      const [accFrom, accTo] = acc;
-      return [accFrom + Number(from), accTo + Number(to)];
-    },
-    [0, 0],
-  );
-  const [fullLifeFrom, fullLifeTo] = fullLife;
-  return `${fullLifeFrom / herbsCount}-${fullLifeTo / herbsCount}`;
+  const woodArray = dataArray.filter((herbString) => herbString[1].toLowerCase().includes('леса'));
+  // prettier-ignore
+  const lifesValues = woodArray
+    .map((herbString) => herbString[3])
+    .map((el) => el.split(' '))
+    .map((el) => {
+      const [fromAge, toAge] = el[0].split('-');
+      if (toAge) return [fromAge, toAge, el[1]];
+      return [fromAge, fromAge, el[1]];
+    })
+    .map(([from, to, unit]) => {
+      if (unit === 'день' || unit === 'дней') return ((Number(from) + Number(to)) / 2) * 365;
+      return (Number(from) + Number(to)) / 2;
+    })
+    .reduce((acc, el) => acc + el, 0) / woodArray.length;
+  return Math.round(lifesValues);
 };
 
 const getDangerousArea = (dataArray) => {
   const dangAreas = dataArray.filter((herbString) => herbString[herbString.length - 1] === 'Да').map((herbString) => herbString[1]);
   const unicDangAreas = _.union(dangAreas);
   const areasCount = unicDangAreas.reduce((acc, area) => {
-    const curAreaCount = dangAreas.reduce((curAcc, curArea) => {
-      return curArea === area ? curAcc + 1 : curAcc;
-    }, 0);
+    // prettier-ignore
+    const curAreaCount = dangAreas
+      .reduce((curAcc, curArea) => (curArea === area ? curAcc + 1 : curAcc), 0);
     return [...acc, [area, curAreaCount]];
   }, []);
 

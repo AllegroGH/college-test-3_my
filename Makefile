@@ -10,3 +10,6 @@ test-steps:
 	npx jest --testNamePattern step3
 	npx jest --testNamePattern step4
 	npx jest --testNamePattern step5
+
+lint: # запуск линтера
+	npx eslint .
