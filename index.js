@@ -37,7 +37,11 @@ const getAverageLife = (dataArray) => {
 };
 
 const getDangerousArea = (dataArray) => {
-  const dangAreas = dataArray.filter((herbString) => herbString[herbString.length - 1] === 'Да').map((herbString) => herbString[1]);
+  const dangAreas = dataArray
+    .filter((herbString) => herbString[herbString.length - 1] === 'Да')
+    .map((herbString) => herbString[1])
+    .flatMap((el) => el.split(', '))
+    .map((el) => _.capitalize(el));
   const unicDangAreas = _.union(dangAreas);
   const areasCount = unicDangAreas.reduce((acc, area) => {
     // prettier-ignore
@@ -45,7 +49,6 @@ const getDangerousArea = (dataArray) => {
       .reduce((curAcc, curArea) => (curArea === area ? curAcc + 1 : curAcc), 0);
     return [...acc, [area, curAreaCount]];
   }, []);
-
   const [dangArea] = _.sortBy(areasCount, 1)[areasCount.length - 1];
   return dangArea;
 };
